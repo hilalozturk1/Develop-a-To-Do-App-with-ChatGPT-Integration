@@ -1,7 +1,6 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
-
-const router = require("./routes/auth");
+import router from "./routes/auth";
 
 const app = express();
 
