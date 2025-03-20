@@ -1,22 +1,25 @@
-// backend/src/models/User.js
-const mongoose = require('mongoose');
-const z = require('zod');
+import mongoose from "mongoose";
+import { z } from "zod";
 
+export interface IUser extends Document {
+  username: string;
+  password: string;
+}
 
 const userSchemaZod = z.object({
   username: z.string().min(3).max(50),
   password: z.string().min(8),
 });
 
-const userSchema = new mongoose.Schema({
+const userSchema: mongoose.Schema<IUser>  = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
 });
 
-const UserModel = mongoose.model('User', userSchema);
+const UserModel = mongoose.model<IUser>('User', userSchema);
 
 const validateUser = (userData: object) => {
   return userSchemaZod.safeParse(userData);
 };
 
-module.exports = { User: UserModel, validateUser };
+export { UserModel, validateUser };
