@@ -63,7 +63,7 @@ const LoginForm: React.FC = () => {
             setIsLogin(!isLogin);
           }}
         >
-          {isLogin ? "Log in" : "Register"}
+          {isLogin ? "Register": "Log in"}
         </a>
       </Form.Item>
     </Form>
