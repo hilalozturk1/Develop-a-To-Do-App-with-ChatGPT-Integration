@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "start": "tsnd --respawn server.ts",
+    "start": "tsnd --respawn src/server.ts",
     "dev": "nodemon src/index.ts",
     "build": "tsc",
     "serve": "node dist/index.ts"
@@ -12,7 +12,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "esmodule",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
