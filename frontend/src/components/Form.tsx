@@ -56,8 +56,14 @@ const LoginForm: React.FC = () => {
           {isLogin ? "Log in" : "Register"}
         </Button>
         or{" "}
-        <a href="" onClick={() => setIsLogin(!isLogin)}>
-          Register now!
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            setIsLogin(!isLogin);
+          }}
+        >
+          {isLogin ? "Log in" : "Register"}
         </a>
       </Form.Item>
     </Form>
