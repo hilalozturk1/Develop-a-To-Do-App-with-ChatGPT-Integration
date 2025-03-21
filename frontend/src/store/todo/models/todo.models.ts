@@ -1,5 +1,8 @@
 export interface ITodo {
   id?: string;
-  name: string;
+  title: string;
   completed?: boolean;
+  description?: string;
+  imageUrl?: string;
+  fileUrl?: string;
 }
