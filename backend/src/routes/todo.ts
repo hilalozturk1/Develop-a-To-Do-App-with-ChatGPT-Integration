@@ -101,4 +101,40 @@ router.delete("/:id", authenticateToken, async (req: any, res: any) => {
   }
 });
 
+router.put("/:id", authenticateToken, upload, async (req: any, res: any) => {
+  try {
+    console.log(req.body);
+    const { title, description } = req.body;
+    const todo = await TodoModel.findById(req.params.id);
+
+    if (!todo) {
+      return res.status(404).json({ message: "Todo not found" });
+    }
+    if (todo.userId.toString() !== req.user.userId) {
+      return res.status(403).json({ message: "Unauthorized to update this todo" });
+    }
+
+    const imageUrl =
+      req.files && req.files.image
+        ? `http://localhost:5000/uploads/${req.files.image[0].filename}`
+        : todo.imageUrl;
+
+    const fileUrl =
+      req.files && req.files.file
+        ? `http://localhost:5000/uploads/${req.files.file[0].filename}`
+        : todo.fileUrl;
+
+    todo.title = title || todo.title;
+    todo.description = description || todo.description;
+    todo.imageUrl = imageUrl;
+    todo.fileUrl = fileUrl;
+
+    await todo.save();
+    res.status(200).json(todo);
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
 export default { routerTodo: router };

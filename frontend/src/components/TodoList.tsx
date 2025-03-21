@@ -1,14 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Popconfirm, Switch, Tag, Tooltip, message } from "antd";
-import { CloseOutlined, CheckOutlined } from "@ant-design/icons";
-
+import {
+  Table,
+  Button,
+  Popconfirm,
+  Switch,
+  Tag,
+  Tooltip,
+  message,
+  Modal,
+  Form,
+  Input,
+  Upload,
+} from "antd";
+import {
+  CloseOutlined,
+  CheckOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import axios from "axios";
 
 import { ITodo } from "../store/todo/models/todo.models";
 
 interface ITodoListProps {
   todos: ITodo[];
-  onTodoRemoval?: (todo: ITodo) => void;
   onTodoToggle?: (todo: ITodo) => void;
 }
 
@@ -18,6 +32,10 @@ export const TodoList: React.FC<ITodoListProps> = ({
 }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [data, setData] = useState<ITodo[]>([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editingTodo, setEditingTodo] = useState<ITodo | null>(null);
+  const [imageList, setImageList] = useState<any[]>([]);
+  const [fileList, setFileList] = useState<any[]>([]);
 
   const fetchTodos = async () => {
     try {
@@ -34,7 +52,6 @@ export const TodoList: React.FC<ITodoListProps> = ({
       });
       setData(response.data.todos);
       setLoading(false);
-      // Burada todos'u güncellemek için parent bileşene bir callback eklenebilir
     } catch (error: any) {
       message.error("Failed to fetch todos!");
       setLoading(false);
@@ -55,9 +72,63 @@ export const TodoList: React.FC<ITodoListProps> = ({
         },
       });
       message.success("Todo deleted successfully!");
-      await fetchTodos(); // Silme işleminden sonra todos listesini güncelle
+      await fetchTodos();
     } catch (error: any) {
       message.error("Failed to delete todo!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onEditTodo = (todo: ITodo) => {
+    setEditingTodo(todo);
+    setImageList([]);
+    setFileList([]);
+    setIsModalVisible(true);
+  };
+
+  const handleEditSubmit = async (values: {
+    title: string;
+    description: string;
+  }) => {
+    if (!editingTodo) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        message.error("You are not authenticated!");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("title", values.title);
+      formData.append("description", values.description);
+
+      if (imageList.length > 0) {
+        formData.append("image", imageList[0].originFileObj);
+      }
+
+      if (fileList.length > 0) {
+        formData.append("file", fileList[0].originFileObj);
+      }
+
+      setLoading(true);
+      await axios.put(
+        `http://localhost:5000/api/todos/${editingTodo._id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      message.success("Todo updated successfully!");
+      setIsModalVisible(false);
+      setEditingTodo(null);
+      await fetchTodos();
+    } catch (error: any) {
+      message.error("Failed to update todo!");
     } finally {
       setLoading(false);
     }
@@ -119,6 +190,13 @@ export const TodoList: React.FC<ITodoListProps> = ({
               defaultChecked={todo.completed}
             />
           </Tooltip>
+          <Button
+            type="default"
+            style={{ marginLeft: "10px" }}
+            onClick={() => onEditTodo(todo)}
+          >
+            Edit
+          </Button>
           <Popconfirm
             title="Are you sure you want to delete?"
             onConfirm={() => onTodoRemoval(todo)}
@@ -137,15 +215,90 @@ export const TodoList: React.FC<ITodoListProps> = ({
   }, []);
 
   return (
-    <Table
-      dataSource={data}
-      columns={columns}
-      loading={loading}
-      rowKey={(todo) => todo._id!}
-      pagination={{ pageSize: 10 }}
-      locale={{
-        emptyText: "There's nothing to do.",
-      }}
-    />
+    <>
+      <Table
+        dataSource={data}
+        columns={columns}
+        loading={loading}
+        rowKey={(todo) => todo._id!}
+        pagination={{ pageSize: 10 }}
+        locale={{
+          emptyText: "There's nothing to do.",
+        }}
+      />
+      <Modal
+        title="Edit Todo"
+        visible={isModalVisible}
+        onCancel={() => {
+          setIsModalVisible(false);
+          setEditingTodo(null);
+        }}
+        footer={null}
+      >
+        <Form
+          initialValues={{
+            title: editingTodo?.title,
+            description: editingTodo?.description,
+          }}
+          onFinish={handleEditSubmit}
+        >
+          <Form.Item
+            name="title"
+            label="Title"
+            rules={[{ required: true, message: "Please input the title!" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="Description"
+            rules={[
+              { required: true, message: "Please input the description!" },
+            ]}
+          >
+            <Input.TextArea />
+          </Form.Item>
+          <Form.Item label="Image">
+            <Upload
+              accept="image/*"
+              maxCount={1}
+              fileList={imageList}
+              onChange={({ fileList }) => setImageList(fileList)}
+              beforeUpload={() => false}
+            >
+              <Button icon={<UploadOutlined />}>Upload Image</Button>
+            </Upload>
+          </Form.Item>
+          <Form.Item label="File">
+            <Upload
+              accept=".pdf,.doc,.docx,.txt"
+              maxCount={1}
+              fileList={fileList}
+              onChange={({ fileList }) => setFileList(fileList)}
+              beforeUpload={() => false}
+            >
+              <Button icon={<UploadOutlined />}>Upload File</Button>
+            </Upload>
+          </Form.Item>
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              style={{ marginRight: "10px" }}
+            >
+              Save
+            </Button>
+            <Button
+              onClick={() => {
+                setIsModalVisible(false);
+                setEditingTodo(null);
+              }}
+            >
+              Cancel
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+    </>
   );
 };
