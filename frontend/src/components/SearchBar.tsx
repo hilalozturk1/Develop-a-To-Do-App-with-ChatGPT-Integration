@@ -54,7 +54,7 @@ export const SearchBar: React.FC<IAddTodoFormProps> = ({ onFormSubmit }) => {
             <Input placeholder="What needs to be done?" />
           </Form.Item>
         </Col>
-        <Col xs={24} sm={24} md={12} lg={10} xl={8}>
+        <Col>
           <Upload
             accept="image/*"
             maxCount={1}
@@ -66,7 +66,7 @@ export const SearchBar: React.FC<IAddTodoFormProps> = ({ onFormSubmit }) => {
           </Upload>
         </Col>
 
-        <Col xs={24} sm={24} md={12} lg={10} xl={8}>
+        <Col>
           <Upload
             accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg"
             maxCount={1}
@@ -77,7 +77,7 @@ export const SearchBar: React.FC<IAddTodoFormProps> = ({ onFormSubmit }) => {
             <Button icon={<UploadOutlined />}>Upload File</Button>
           </Upload>
         </Col>
-        <Col xs={24} sm={24} md={7} lg={5} xl={4}>
+        <Col>
           <Button type="primary" htmlType="submit" block>
             <PlusCircleFilled />
             Add todo
