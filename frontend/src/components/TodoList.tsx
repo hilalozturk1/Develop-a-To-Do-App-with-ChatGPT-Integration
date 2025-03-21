@@ -21,15 +21,7 @@ import axios from "axios";
 
 import { ITodo } from "../store/todo/models/todo.models";
 
-interface ITodoListProps {
-  todos: ITodo[];
-  onTodoToggle?: (todo: ITodo) => void;
-}
-
-export const TodoList: React.FC<ITodoListProps> = ({
-  todos,
-  onTodoToggle = () => {},
-}) => {
+export const TodoList: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [data, setData] = useState<ITodo[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -129,6 +121,35 @@ export const TodoList: React.FC<ITodoListProps> = ({
       await fetchTodos();
     } catch (error: any) {
       message.error("Failed to update todo!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onTodoToggle = async (todo: ITodo) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        message.error("You are not authenticated!");
+        return;
+      }
+
+      const updatedCompleted = !todo.completed;
+
+      setLoading(true);
+      await axios.put(
+        `http://localhost:5000/api/todos/${todo._id}/completed`,
+        { completed: updatedCompleted },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      message.success(`Todo marked as ${updatedCompleted ? "completed" : "incompleted"}!`);
+      await fetchTodos();
+    } catch (error: any) {
+      message.error("Failed to update todo status!");
     } finally {
       setLoading(false);
     }

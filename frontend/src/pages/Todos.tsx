@@ -36,7 +36,6 @@ function Todos() {
   }, []);
 
   const handleFormSubmit = async (formData: FormData): Promise<void> => {
-
     try {
       setLoading(true);
       const response = await axios.post(
@@ -94,7 +93,7 @@ function Todos() {
         xl={{ span: 18 }}
       >
         <Card title="Todo List">
-          <TodoList todos={data} />
+          <TodoList />
         </Card>
       </Col>
     </Row>
