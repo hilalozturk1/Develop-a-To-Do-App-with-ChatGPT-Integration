@@ -88,4 +88,17 @@ router.get("/", authenticateToken, async (req: any, res: any) => {
   }
 });
 
+router.delete("/:id", authenticateToken, async (req: any, res: any) => {
+  try {
+    const todo = await TodoModel.findById(req.params.id);
+    if (!todo || todo.userId.toString() !== req.user.userId) {
+      return res.sendStatus(403);
+    }
+    await todo.deleteOne();
+    res.sendStatus(204);
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 export default { routerTodo: router };
