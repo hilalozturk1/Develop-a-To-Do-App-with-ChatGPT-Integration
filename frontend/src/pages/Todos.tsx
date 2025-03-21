@@ -7,49 +7,26 @@ import { TodoList } from "../components/TodoList";
 import { Row, Col, Card, message } from "antd";
 import { Header } from "antd/es/layout/layout";
 
-import { ITodo } from "../store/todo/models/todo.models";
-
 function Todos() {
   const token = localStorage.getItem("token");
 
-  const [data, setData] = useState<ITodo[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  const fetchTodos = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get("http://localhost:5000/api/todos", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setData(response.data.todos);
-      setLoading(false);
-    } catch (error: any) {
-      message.error("Failed to fetch todos!");
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTodos();
-  }, []);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isCreated, setIsCreated] = useState<boolean>(false);
 
   const handleFormSubmit = async (formData: FormData): Promise<void> => {
     try {
       setLoading(true);
-      const response = await axios.post(
-        "http://localhost:5000/api/todos",
-        formData,
-        {
+      const response = await axios
+        .post("http://localhost:5000/api/todos", formData, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
-        }
-      );
-      message.success("Todo added successfully!");
-      fetchTodos();
+        })
+        .then(() => {
+          message.success("Todo added successfully!");
+          setIsCreated(!isCreated);
+        });
     } catch (error: any) {
       message.error("Failed to add todo!");
     } finally {
@@ -93,7 +70,7 @@ function Todos() {
         xl={{ span: 18 }}
       >
         <Card title="Todo List">
-          <TodoList />
+          <TodoList isCreated={isCreated} />
         </Card>
       </Col>
     </Row>

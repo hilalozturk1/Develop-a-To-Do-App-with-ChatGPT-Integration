@@ -21,7 +21,11 @@ import axios from "axios";
 
 import { ITodo } from "../store/todo/models/todo.models";
 
-export const TodoList: React.FC = () => {
+interface TodoListProps {
+  isCreated: boolean;
+}
+
+export const TodoList: React.FC<TodoListProps> = ({ isCreated }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [data, setData] = useState<ITodo[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -146,7 +150,9 @@ export const TodoList: React.FC = () => {
           },
         }
       );
-      message.success(`Todo marked as ${updatedCompleted ? "completed" : "incompleted"}!`);
+      message.success(
+        `Todo marked as ${updatedCompleted ? "completed" : "incompleted"}!`
+      );
       await fetchTodos();
     } catch (error: any) {
       message.error("Failed to update todo status!");
@@ -233,7 +239,7 @@ export const TodoList: React.FC = () => {
 
   useEffect(() => {
     fetchTodos();
-  }, []);
+  }, [isCreated]);
 
   return (
     <>
