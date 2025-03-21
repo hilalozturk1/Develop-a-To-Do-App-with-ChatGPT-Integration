@@ -40,7 +40,7 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
         </Popconfirm>,
       ]}
       className="list-item"
-      key={todo.id}
+      key={todo._id}
     >
       <div className="todo-item">
         <Tag color={todo.completed ? "cyan" : "red"} className="todo-tag">

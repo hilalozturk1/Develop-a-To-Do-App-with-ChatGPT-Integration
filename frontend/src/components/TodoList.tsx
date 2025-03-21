@@ -1,7 +1,8 @@
-import React from "react";
-
-import { Table, Button, Popconfirm, Switch, Tag, Tooltip } from "antd";
+import React, { useEffect, useState } from "react";
+import { Table, Button, Popconfirm, Switch, Tag, Tooltip, message } from "antd";
 import { CloseOutlined, CheckOutlined } from "@ant-design/icons";
+
+import axios from "axios";
 
 import { ITodo } from "../store/todo/models/todo.models";
 
@@ -13,9 +14,55 @@ interface ITodoListProps {
 
 export const TodoList: React.FC<ITodoListProps> = ({
   todos,
-  onTodoRemoval = () => {},
   onTodoToggle = () => {},
 }) => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [data, setData] = useState<ITodo[]>([]);
+
+  const fetchTodos = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        message.error("You are not authenticated!");
+        return;
+      }
+      const response = await axios.get("http://localhost:5000/api/todos", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setData(response.data.todos);
+      setLoading(false);
+      // Burada todos'u güncellemek için parent bileşene bir callback eklenebilir
+    } catch (error: any) {
+      message.error("Failed to fetch todos!");
+      setLoading(false);
+    }
+  };
+
+  const onTodoRemoval = async (todo: ITodo) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        message.error("You are not authenticated!");
+        return;
+      }
+      setLoading(true);
+      await axios.delete(`http://localhost:5000/api/todos/${todo._id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      message.success("Todo deleted successfully!");
+      await fetchTodos(); // Silme işleminden sonra todos listesini güncelle
+    } catch (error: any) {
+      message.error("Failed to delete todo!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const columns = [
     {
       title: "Title",
@@ -85,11 +132,16 @@ export const TodoList: React.FC<ITodoListProps> = ({
     },
   ];
 
+  useEffect(() => {
+    fetchTodos();
+  }, []);
+
   return (
     <Table
-      dataSource={todos}
+      dataSource={data}
       columns={columns}
-      rowKey={(todo) => todo.id!}
+      loading={loading}
+      rowKey={(todo) => todo._id!}
       pagination={{ pageSize: 10 }}
       locale={{
         emptyText: "There's nothing to do.",
