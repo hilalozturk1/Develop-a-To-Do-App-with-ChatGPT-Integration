@@ -137,4 +137,27 @@ router.put("/:id", authenticateToken, upload, async (req: any, res: any) => {
   }
 });
 
+router.put("/:id/completed", authenticateToken, async (req: any, res: any) => {
+  try {
+    const { completed } = req.body;
+    const todo = await TodoModel.findById(req.params.id);
+
+    if (!todo) {
+      return res.status(404).json({ message: "Todo not found" });
+    }
+
+    if (todo.userId.toString() !== req.user.userId) {
+      return res.status(403).json({ message: "Unauthorized to update this todo" });
+    }
+
+    todo.completed = completed;
+    await todo.save();
+
+    res.status(200).json(todo);
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
 export default { routerTodo: router };
