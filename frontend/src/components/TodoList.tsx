@@ -42,7 +42,7 @@ export const TodoList: React.FC = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      setData(response.data.todos);
+      setData(response.data.todos.reverse());
       setLoading(false);
     } catch (error: any) {
       message.error("Failed to fetch todos!");
