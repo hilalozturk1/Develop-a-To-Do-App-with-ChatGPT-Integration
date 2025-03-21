@@ -1,8 +1,8 @@
-import React from 'react';
-import { Tooltip, Tag, List, Button, Popconfirm, Switch } from 'antd';
-import { CloseOutlined, CheckOutlined } from '@ant-design/icons';
+import React from "react";
+import { Tooltip, Tag, List, Button, Popconfirm, Switch } from "antd";
+import { CloseOutlined, CheckOutlined } from "@ant-design/icons";
 
-import { ITodo } from '../store/todo/models/todo.models';
+import { ITodo } from "../store/todo/models/todo.models";
 
 interface ITodoItemProps {
   todo: ITodo;
@@ -19,7 +19,7 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
     <List.Item
       actions={[
         <Tooltip
-          title={todo.completed ? 'Mark as uncompleted' : 'Mark as completed'}
+          title={todo.completed ? "Mark as uncompleted" : "Mark as completed"}
         >
           <Switch
             checkedChildren={<CheckOutlined />}
@@ -43,9 +43,30 @@ export const TodoItem: React.FC<ITodoItemProps> = ({
       key={todo.id}
     >
       <div className="todo-item">
-        <Tag color={todo.completed ? 'cyan' : 'red'} className="todo-tag">
-          {todo.name}
+        <Tag color={todo.completed ? "cyan" : "red"} className="todo-tag">
+          {todo.title}
         </Tag>
+
+        {todo.imageUrl && (
+          <img
+            src={todo.imageUrl}
+            alt="Todo"
+            className="todo-image"
+            style={{ maxWidth: "100px", marginTop: "10px" }}
+          />
+        )}
+        
+        {todo.fileUrl && (
+          <a
+            href={todo.fileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="todo-file-link"
+            style={{ display: "block", marginTop: "10px" }}
+          >
+            Download File
+          </a>
+        )}
       </div>
     </List.Item>
   );
