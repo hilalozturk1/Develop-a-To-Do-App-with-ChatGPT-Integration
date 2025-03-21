@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { compileFunction } from "vm";
 import { z } from "zod";
 
 export interface ITodo extends Document {
@@ -11,6 +12,7 @@ export interface ITodo extends Document {
   tags?: string[];
   createdAt?: Date;
   updatedAt?: Date;
+  completed: boolean;
 }
 
 export const todoSchemaZod = z.object({
@@ -21,6 +23,7 @@ export const todoSchemaZod = z.object({
   fileUrl: z.string().url().optional(),
   recommendation: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  completed: z.boolean().optional(),
 });
 
 const todoSchema: Schema<ITodo> = new mongoose.Schema(
@@ -36,6 +39,7 @@ const todoSchema: Schema<ITodo> = new mongoose.Schema(
     fileUrl: { type: String },
     recommendation: { type: String },
     tags: { type: [String] },
+    completed: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
