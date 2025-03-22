@@ -6,6 +6,7 @@ import express from "express";
 import dotenv from "dotenv";
 import path from "path";
 import multer from "multer";
+import { getChatGPTRecommendation } from "../utils/chatgpt";
 
 dotenv.config();
 
@@ -45,8 +46,10 @@ function checkFileType(file: any, cb: any) {
 
 router.post("/", authenticateToken, upload, async (req: any, res: any) => {
   try {
-    const { name } = req.body;
+    const { name, description } = req.body;
     const userId = req.user.userId;
+
+    const recommendation = await getChatGPTRecommendation(`${name} - ${description}`);
 
     const imageUrl =
       req.files && req.files.image
@@ -63,6 +66,7 @@ router.post("/", authenticateToken, upload, async (req: any, res: any) => {
       userId,
       imageUrl,
       fileUrl,
+      recommendation
     });
 
     await todo.save();
@@ -114,6 +118,8 @@ router.put("/:id", authenticateToken, upload, async (req: any, res: any) => {
       return res.status(403).json({ message: "Unauthorized to update this todo" });
     }
 
+    const recommendation = await getChatGPTRecommendation(`${title || todo.title} - ${description || todo.description}`);
+
     const imageUrl =
       req.files && req.files.image
         ? `http://localhost:5000/uploads/${req.files.image[0].filename}`
@@ -128,6 +134,7 @@ router.put("/:id", authenticateToken, upload, async (req: any, res: any) => {
     todo.description = description || todo.description;
     todo.imageUrl = imageUrl;
     todo.fileUrl = fileUrl;
+    todo.recommendation = recommendation;
 
     await todo.save();
     res.status(200).json(todo);
