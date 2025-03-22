@@ -2,7 +2,7 @@ import LoginForm from "../components/Form";
 
 function Login() {
   return (
-    <div>
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
       <LoginForm />
     </div>
   );
