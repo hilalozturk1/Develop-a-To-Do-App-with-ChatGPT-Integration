@@ -15,6 +15,7 @@ export const SearchBar: React.FC<IAddTodoFormProps> = ({ onFormSubmit }) => {
     const formData = new FormData();
 
     formData.append("name", form.getFieldValue("name"));
+    formData.append("description", form.getFieldValue("description"));
 
     if (imageList.length > 0) {
       formData.append("image", imageList[0].originFileObj);
@@ -52,6 +53,14 @@ export const SearchBar: React.FC<IAddTodoFormProps> = ({ onFormSubmit }) => {
             rules={[{ required: true, message: "This field is required" }]}
           >
             <Input placeholder="What needs to be done?" />
+          </Form.Item>
+        </Col>
+        <Col>
+          <Form.Item
+            name={"description"}
+            rules={[{ required: true, message: "Please provide a description!" }]}
+          >
+            <Input.TextArea placeholder="Add a description" rows={4} />
           </Form.Item>
         </Col>
         <Col>
