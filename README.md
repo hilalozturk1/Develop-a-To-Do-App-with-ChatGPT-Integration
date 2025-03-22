@@ -1,5 +1,8 @@
 # Getting Started with Todo App
 
+Create an account on mongodb then sample database,
+there is an env.example file in backend, add your mongodbUri into your env file.
+
 \backend 
     npm i
     npm run build
