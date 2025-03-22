@@ -175,6 +175,12 @@ export const TodoList: React.FC<TodoListProps> = ({ isCreated }) => {
       render: (text: string) => (text ? <p>{text}</p> : "No description"),
     },
     {
+      title: "Recommendation",
+      dataIndex: "recommendation",
+      key: "recommendation",
+      render: (text: string) => (text ? <p>{text}</p> : "No recommendation"),
+    },
+    {
       title: "Image",
       dataIndex: "imageUrl",
       key: "imageUrl",
