@@ -3,6 +3,7 @@ import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Form, Input, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Header } from "antd/es/layout/layout";
 
 const LoginForm: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -34,6 +35,7 @@ const LoginForm: React.FC = () => {
       style={{ maxWidth: 360 }}
       onFinish={onFinish}
     >
+      <h2> {isLogin ? "Log in Page" : "Register Page"}</h2>
       <Form.Item
         name="username"
         rules={[{ required: true, message: "Please input your Username!" }]}
@@ -63,7 +65,7 @@ const LoginForm: React.FC = () => {
             setIsLogin(!isLogin);
           }}
         >
-          {isLogin ? "Register": "Log in"}
+          {isLogin ? "Register" : "Log in"}
         </a>
       </Form.Item>
     </Form>
