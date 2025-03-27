@@ -12,7 +12,7 @@ export class TodoController {
     try {
       const todoData = {
         ...req.body,
-        userId: req.user._id,
+        userId: req.user.userId,
         imageUrl: req.file ? `/uploads/${req.file.filename}` : undefined,
         fileUrl: req.file ? `/uploads/${req.file.filename}` : undefined,
       };
@@ -26,7 +26,7 @@ export class TodoController {
 
   getAllTodos: RequestHandler = async (req: any, res: any, next) => {
     try {
-      const todos = await this.todoService.getAllTodos(req.user._id);
+      const todos = await this.todoService.getAllTodos(req.user.userId);
       return res.status(200).json(todos);
     } catch (error) {
       next(error);
@@ -37,7 +37,7 @@ export class TodoController {
     try {
       const todo = await this.todoService.getTodoById(
         req.params.id,
-        req.user._id
+        req.user.userId
       );
       return res.status(200).json(todo);
     } catch (error) {
@@ -55,7 +55,7 @@ export class TodoController {
 
       const todo = await this.todoService.updateTodo(
         req.params.id,
-        req.user._id,
+        req.user.userId,
         updateData
       );
       return res.status(200).json(todo);
@@ -68,7 +68,7 @@ export class TodoController {
     try {
       const result = await this.todoService.deleteTodo(
         req.params.id,
-        req.user._id
+        req.user.userId
       );
       return res.status(200).json(result);
     } catch (error) {
@@ -80,7 +80,7 @@ export class TodoController {
     try {
       const todo = await this.todoService.toggleTodoStatus(
         req.params.id,
-        req.user._id
+        req.user.userId
       );
       return res.status(200).json(todo);
     } catch (error) {
@@ -91,7 +91,7 @@ export class TodoController {
   searchTodos: RequestHandler = async (req: any, res: any, next) => {
     try {
       const todos = await this.todoService.searchTodos(
-        req.user._id,
+        req.user.userId,
         req.query.q as string
       );
       return res.status(200).json(todos);
