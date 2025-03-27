@@ -1,10 +1,10 @@
-import { Router } from 'express';
-import { TodoController } from '../controllers/todoController';
-import { TodoService } from '../services/todoService';
-import { uploadMiddleware } from '../middlewares/fileUpload';
-import { validateRequest } from '../middlewares/validateRequest';
-import { z } from 'zod';
-import { authenticateToken } from '../middlewares/authentication';
+import { Router } from "express";
+import { TodoController } from "../controllers/todoController";
+import { TodoService } from "../services/todoService";
+import { uploadMiddleware } from "../middlewares/fileUpload";
+import { validateRequest } from "../middlewares/validateRequest";
+import { z } from "zod";
+import { authenticateToken } from "../middlewares/authentication";
 
 const router = Router();
 const todoService = new TodoService();
@@ -37,26 +37,29 @@ router.use(authenticateToken);
 
 router.post(
   '/',
-  uploadMiddleware.single('file'),
+  uploadMiddleware,
   validateRequest(createTodoSchema),
   todoController.createTodo.bind(todoController)
 );
 
-router.get('/', todoController.getAllTodos.bind(todoController));
+router.get("/", todoController.getAllTodos.bind(todoController));
 
-router.get('/:id', todoController.getTodoById.bind(todoController));
+router.get("/:id", todoController.getTodoById.bind(todoController));
 
-router.patch(
-  '/:id',
-  uploadMiddleware.single('file'),
+router.put(
+  "/:id",
+  uploadMiddleware,
   validateRequest(updateTodoSchema),
   todoController.updateTodo.bind(todoController)
 );
 
-router.delete('/:id', todoController.deleteTodo.bind(todoController));
+router.delete("/:id", todoController.deleteTodo.bind(todoController));
 
-router.patch('/:id/toggle', todoController.toggleTodoStatus.bind(todoController));
+router.put(
+  "/:id/completed",
+  todoController.toggleTodoStatus.bind(todoController)
+);
 
-router.get('/search', todoController.searchTodos.bind(todoController));
+router.get("/search", todoController.searchTodos.bind(todoController));
 
-export default router; 
+export default router;
