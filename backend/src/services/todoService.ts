@@ -1,28 +1,25 @@
-import { TodoModel } from '../models/Todo';
-import { ITodo } from '../types/todo';
+import { TodoModel } from "../models/Todo";
+import { ITodo } from "../types/todo";
 
 export class TodoService {
-  async createTodo(todoData: Partial<ITodo>) {
-    if (!todoData.title || !todoData.description || !todoData.userId) {
-      throw new Error('Title, description and userId are required');
+  async createTodo(todoData: Partial<ITodo>): Promise<ITodo> {
+
+    const editedTodoData = todoData?.body
+    if (!editedTodoData?.title?.trim()) {
+      throw new Error("Title required");
     }
 
-    const existingTodo = await TodoModel.findOne({ 
-      title: todoData.title,
-      userId: todoData.userId 
-    });
-    if (existingTodo) {
-      throw new Error('Todo with this title already exists');
-    }
-
-    const todo = await TodoModel.create({
-      ...todoData,
-      completed: false,
-      createdAt: new Date(),
-      updatedAt: new Date()
+    const todo = new TodoModel({
+      title: editedTodoData.title.trim(),
+      description: editedTodoData.description?.trim(),
+      userId: editedTodoData.userId,
+      imageUrl: editedTodoData.imageUrl,
+      fileUrl: editedTodoData.fileUrl,
+      tags: editedTodoData.tags || [],
+      completed: false
     });
 
-    return todo;
+    return await todo.save();
   }
 
   async getAllTodos(userId: string) {
@@ -43,19 +40,8 @@ export class TodoService {
       throw new Error('Todo not found');
     }
 
-    if (updateData.title && updateData.title !== todo.title) {
-      const existingTodo = await TodoModel.findOne({ 
-        title: updateData.title,
-        userId,
-        _id: { $ne: id }
-      });
-      if (existingTodo) {
-        throw new Error('Todo with this title already exists');
-      }
-    }
-
     Object.assign(todo, {
-      ...updateData,
+      ...updateData.body,
       updatedAt: new Date()
     });
 
@@ -77,7 +63,7 @@ export class TodoService {
       throw new Error('Todo not found');
     }
 
-    todo.completed = !todo.completed;
+    (todo as any).completed = !(todo as any).completed;
     todo.updatedAt = new Date();
     await todo.save();
 

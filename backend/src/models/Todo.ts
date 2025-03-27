@@ -4,7 +4,7 @@ import { ITodo } from "../types/todo";
 
 const todoSchemaZod = z.object({
   title: z.string().min(1, "Title is required"),
-  description: z.string(),
+  description: z.string().optional(),
   userId: z.string(),
   imageUrl: z.string().optional(),
   fileUrl: z.string().optional(),
@@ -13,17 +13,43 @@ const todoSchemaZod = z.object({
   completed: z.boolean().default(false),
 });
 
-const todoSchema = new mongoose.Schema<ITodo>(
+const createTodoSchema = z.object({
+  body: z.object({
+    title: z.string().min(1, "Title is required"),
+    description: z.string().min(1, "Description is required"),
+    userId: z.string().optional(),
+    imageUrl: z.string().optional(),
+    fileUrl: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+    completed: z.boolean().optional().default(false),
+  }),
+});
+
+const updateTodoSchema = z.object({
+  params: z.object({
+    id: z.string().min(1, "Todo ID is required"),
+  }),
+  body: z.object({
+    title: z.string().min(1, "Title is required").optional(),
+    description: z.string().min(1, "Description is required").optional(),
+    completed: z.boolean().optional(),
+    imageUrl: z.string().optional(),
+    fileUrl: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+  }),
+});
+
+const todoSchema = new mongoose.Schema(
   {
-    title: { 
-      type: String, 
-      required: true,
-      trim: true 
-    },
-    description: { 
+    title: {
       type: String,
       required: true,
-      trim: true 
+      trim: true,
+    },
+    description: {
+      type: String,
+      required: true,
+      trim: true,
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -36,7 +62,7 @@ const todoSchema = new mongoose.Schema<ITodo>(
     tags: { type: [String] },
     completed: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
+    updatedAt: { type: Date, default: Date.now },
   },
   { timestamps: true }
 );
@@ -47,4 +73,10 @@ const validateTodo = (todoData: unknown) => {
   return todoSchemaZod.safeParse(todoData);
 };
 
-export { validateTodo, TodoModel };
+export {
+  validateTodo,
+  TodoModel,
+  todoSchemaZod,
+  createTodoSchema,
+  updateTodoSchema,
+};

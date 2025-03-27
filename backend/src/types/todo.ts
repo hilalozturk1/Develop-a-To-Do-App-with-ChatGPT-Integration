@@ -1,24 +1,39 @@
-export interface ITodo {
-  _id: string;
+export interface ITodoBody {
   title: string;
   description: string;
-  completed: boolean;
+  userId?: string;
+  imageUrl?: string;
+  fileUrl?: string;
+  recommendation?: string;
+  tags?: string[];
+  completed?: boolean;
+}
+
+export interface ITodo {
+  _id: string;
+  body: ITodoBody;
   createdAt: Date;
   updatedAt: Date;
-  userId: Object;
-  imageUrl: string;
-  fileUrl: string;
-  recommendation: string;
-  tags: string[];
 }
 
 export interface TodoCreateDTO {
-  title: string;
-  description: string;
+  body: {
+    title: string;
+    description: string;
+    userId?: string;
+    imageUrl?: string;
+    fileUrl?: string;
+    tags?: string[];
+  }
 }
 
 export interface TodoUpdateDTO {
-  title?: string;
-  description?: string;
-  completed?: boolean;
-} 
+  body: {
+    title?: string;
+    description?: string;
+    completed?: boolean;
+    imageUrl?: string;
+    fileUrl?: string;
+    tags?: string[];
+  }
+}
