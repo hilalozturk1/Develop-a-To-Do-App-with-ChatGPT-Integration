@@ -14,7 +14,7 @@ export const SearchBar: React.FC<IAddTodoFormProps> = ({ onFormSubmit }) => {
   const onFinish = () => {
     const formData = new FormData();
 
-    formData.append("name", form.getFieldValue("name"));
+    formData.append("title", form.getFieldValue("name"));
     formData.append("description", form.getFieldValue("description"));
 
     if (imageList.length > 0) {

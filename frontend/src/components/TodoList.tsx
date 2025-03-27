@@ -46,7 +46,7 @@ export const TodoList: React.FC<TodoListProps> = ({ isCreated }) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      setData(response.data.todos.reverse());
+      setData(response.data.reverse());
       setLoading(false);
     } catch (error: any) {
       message.error("Failed to fetch todos!");
