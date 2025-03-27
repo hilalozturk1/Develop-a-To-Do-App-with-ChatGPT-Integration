@@ -1,34 +1,30 @@
 import mongoose, { Document, Schema } from "mongoose";
 import { z } from "zod";
+import { ITodo } from "../types/todo";
 
-export interface ITodo extends Document {
-  title: string;
-  description?: string;
-  userId: mongoose.Schema.Types.ObjectId;
-  imageUrl?: string;
-  fileUrl?: string;
-  recommendation?: string;
-  tags?: string[];
-  createdAt?: Date;
-  updatedAt?: Date;
-  completed: boolean;
-}
-
-export const todoSchemaZod = z.object({
+const todoSchemaZod = z.object({
   title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-  userId: z.string().nonempty("User ID is required"),
-  imageUrl: z.string().url().optional(),
-  fileUrl: z.string().url().optional(),
+  description: z.string(),
+  userId: z.string(),
+  imageUrl: z.string().optional(),
+  fileUrl: z.string().optional(),
   recommendation: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  completed: z.boolean().optional(),
+  completed: z.boolean().default(false),
 });
 
-const todoSchema: Schema<ITodo> = new mongoose.Schema(
+const todoSchema = new mongoose.Schema<ITodo>(
   {
-    title: { type: String, required: true },
-    description: { type: String },
+    title: { 
+      type: String, 
+      required: true,
+      trim: true 
+    },
+    description: { 
+      type: String,
+      required: true,
+      trim: true 
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -39,6 +35,8 @@ const todoSchema: Schema<ITodo> = new mongoose.Schema(
     recommendation: { type: String },
     tags: { type: [String] },
     completed: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
   },
   { timestamps: true }
 );
