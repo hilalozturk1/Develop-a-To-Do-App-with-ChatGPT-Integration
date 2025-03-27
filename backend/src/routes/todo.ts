@@ -53,12 +53,12 @@ router.post("/", authenticateToken, upload, async (req: any, res: any) => {
 
     const imageUrl =
       req.files && req.files.image
-        ? `http://localhost:5000/uploads/${req.files.image[0].filename}`
+        ? `${process.env.BASE_URL}/uploads/${req.files.image[0].filename}`
         : null;
 
     const fileUrl =
       req.files && req.files.file
-        ? `http://localhost:5000/uploads/${req.files.file[0].filename}`
+        ? `${process.env.BASE_URL}/uploads/${req.files.file[0].filename}`
         : null;
 
     const todo = new TodoModel({
@@ -122,12 +122,12 @@ router.put("/:id", authenticateToken, upload, async (req: any, res: any) => {
 
     const imageUrl =
       req.files && req.files.image
-        ? `http://localhost:5000/uploads/${req.files.image[0].filename}`
+        ? `${process.env.BASE_URL}/uploads/${req.files.image[0].filename}`
         : todo.imageUrl;
 
     const fileUrl =
       req.files && req.files.file
-        ? `http://localhost:5000/uploads/${req.files.file[0].filename}`
+        ? `${process.env.BASE_URL}/uploads/${req.files.file[0].filename}`
         : todo.fileUrl;
 
     todo.title = title || todo.title;
