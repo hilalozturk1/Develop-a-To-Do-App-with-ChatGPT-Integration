@@ -1,56 +1,55 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { SearchBar } from "../components/SearchBar";
 import { TodoList } from "../components/TodoList";
 
-import { Row, Col, Card, message, Button } from "antd";
-import { Header } from "antd/es/layout/layout";
+import { Row, Col, Card, message, Button, Spin } from "antd";
+import { LogoutOutlined, PlusOutlined } from "@ant-design/icons";
 
-function Todos() {
-  const token = localStorage.getItem("token");
+import { useRequestHook } from "../hooks/useRequestHook";
+
+const Todos: React.FC = () => {
   const navigate = useNavigate();
-
-  const [loading, setLoading] = useState<boolean>(false);
-  const [isCreated, setIsCreated] = useState<boolean>(false);
+  const { loading, error, createTodo } = useRequestHook();
+  const [isCreated, setIsCreated] = useState(false);
 
   const handleFormSubmit = async (formData: FormData): Promise<void> => {
     try {
-      setLoading(true);
-      const response = await axios
-        .post("http://localhost:5000/api/todos", formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then(() => {
-          message.success("Todo added successfully!");
-          setIsCreated(!isCreated);
-        });
-    } catch (error: any) {
-      message.error("Failed to add todo!");
-    } finally {
-      setLoading(false);
+      await createTodo(formData);
+      setIsCreated(prev => !prev);
+      message.success('Todo created successfully!');
+    } catch (err) {
+      message.error('Failed to create todo');
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-    message.success("Logged out successfully!");
+    try {
+      localStorage.removeItem("token");
+      message.success("Logged out successfully!");
+      navigate("/login");
+    } catch (err) {
+      message.error("Failed to logout");
+    }
   };
+
+  if (error) {
+    message.error(error);
+  }
+
   return (
-    <>
+    <Spin spinning={loading}>
       <Button
         type="primary"
         danger
-        style={{ float: "right", marginTop: "20px", marginRight: "20px" }}
+        icon={<LogoutOutlined />}
+        style={{ float: "right", margin: "20px" }}
         onClick={handleLogout}
       >
         Log Out
       </Button>
+
       <Row
         justify="center"
         align="middle"
@@ -58,41 +57,34 @@ function Todos() {
         className="todos-container"
       >
         <Col
-          xs={{ span: 23 }}
-          sm={{ span: 23 }}
-          md={{ span: 21 }}
-          lg={{ span: 20 }}
-          xl={{ span: 18 }}
+          xs={23}
+          sm={23}
+          md={21}
+          lg={20}
+          xl={18}
         >
-          <Header title="Add Todo" />
-        </Col>
-
-        <Col
-          xs={{ span: 23 }}
-          sm={{ span: 23 }}
-          md={{ span: 21 }}
-          lg={{ span: 20 }}
-          xl={{ span: 18 }}
-        >
-          <Card title="Create a new todo">
+          <Card 
+            title="Create a new todo" 
+            extra={<PlusOutlined />}
+          >
             <SearchBar onFormSubmit={handleFormSubmit} />
           </Card>
         </Col>
 
         <Col
-          xs={{ span: 23 }}
-          sm={{ span: 23 }}
-          md={{ span: 21 }}
-          lg={{ span: 20 }}
-          xl={{ span: 18 }}
+          xs={23}
+          sm={23}
+          md={21}
+          lg={20}
+          xl={18}
         >
           <Card title="Todo List">
             <TodoList isCreated={isCreated} />
           </Card>
         </Col>
       </Row>
-    </>
+    </Spin>
   );
-}
+};
 
 export default Todos;

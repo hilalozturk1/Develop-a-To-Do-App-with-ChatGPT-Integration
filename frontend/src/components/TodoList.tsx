@@ -6,7 +6,6 @@ import {
   Switch,
   Tag,
   Tooltip,
-  message,
   Modal,
   Form,
   Input,
@@ -17,8 +16,7 @@ import {
   CheckOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
-import axios from "axios";
-
+import { useRequestHook } from "../hooks/useRequestHook";
 import { ITodo } from "../store/todo/models/todo.models";
 
 interface TodoListProps {
@@ -26,53 +24,22 @@ interface TodoListProps {
 }
 
 export const TodoList: React.FC<TodoListProps> = ({ isCreated }) => {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [data, setData] = useState<ITodo[]>([]);
+  const {
+    data,
+    loading,
+    fetchTodos,
+    deleteTodo,
+    updateTodo,
+    toggleTodoStatus,
+  } = useRequestHook();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingTodo, setEditingTodo] = useState<ITodo | null>(null);
   const [imageList, setImageList] = useState<any[]>([]);
   const [fileList, setFileList] = useState<any[]>([]);
 
-  const fetchTodos = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("token");
-      if (!token) {
-        message.error("You are not authenticated!");
-        return;
-      }
-      const response = await axios.get("http://localhost:5000/api/todos", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setData(response.data.reverse());
-      setLoading(false);
-    } catch (error: any) {
-      message.error("Failed to fetch todos!");
-      setLoading(false);
-    }
-  };
-
-  const onTodoRemoval = async (todo: ITodo) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        message.error("You are not authenticated!");
-        return;
-      }
-      setLoading(true);
-      await axios.delete(`http://localhost:5000/api/todos/${todo._id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      message.success("Todo deleted successfully!");
-      await fetchTodos();
-    } catch (error: any) {
-      message.error("Failed to delete todo!");
-    } finally {
-      setLoading(false);
+  const onTodoRemoval = (todo: ITodo) => {
+    if (todo._id) {
+      deleteTodo(todo._id);
     }
   };
 
@@ -87,77 +54,28 @@ export const TodoList: React.FC<TodoListProps> = ({ isCreated }) => {
     title: string;
     description: string;
   }) => {
-    if (!editingTodo) return;
+    if (!editingTodo || !editingTodo._id) return;
 
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        message.error("You are not authenticated!");
-        return;
-      }
+    const formData = new FormData();
+    formData.append("title", values.title);
+    formData.append("description", values.description);
 
-      const formData = new FormData();
-      formData.append("title", values.title);
-      formData.append("description", values.description);
-
-      if (imageList.length > 0) {
-        formData.append("image", imageList[0].originFileObj);
-      }
-
-      if (fileList.length > 0) {
-        formData.append("file", fileList[0].originFileObj);
-      }
-
-      setLoading(true);
-      await axios.put(
-        `http://localhost:5000/api/todos/${editingTodo._id}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      message.success("Todo updated successfully!");
-      setIsModalVisible(false);
-      setEditingTodo(null);
-      await fetchTodos();
-    } catch (error: any) {
-      message.error("Failed to update todo!");
-    } finally {
-      setLoading(false);
+    if (imageList.length > 0) {
+      formData.append("image", imageList[0].originFileObj);
     }
+
+    if (fileList.length > 0) {
+      formData.append("file", fileList[0].originFileObj);
+    }
+
+    await updateTodo(editingTodo._id, formData);
+    setIsModalVisible(false);
+    setEditingTodo(null);
   };
 
-  const onTodoToggle = async (todo: ITodo) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        message.error("You are not authenticated!");
-        return;
-      }
-
-      const updatedCompleted = !todo.completed;
-
-      setLoading(true);
-      await axios.put(
-        `http://localhost:5000/api/todos/${todo._id}/completed`,
-        { completed: updatedCompleted },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      message.success(
-        `Todo marked as ${updatedCompleted ? "completed" : "incompleted"}!`
-      );
-      await fetchTodos();
-    } catch (error: any) {
-      message.error("Failed to update todo status!");
-    } finally {
-      setLoading(false);
+  const onTodoToggle = (todo: ITodo) => {
+    if (todo._id) {
+      toggleTodoStatus(todo._id, !todo.completed);
     }
   };
 
@@ -245,7 +163,7 @@ export const TodoList: React.FC<TodoListProps> = ({ isCreated }) => {
 
   useEffect(() => {
     fetchTodos();
-  }, [isCreated]);
+  }, [isCreated, fetchTodos]);
 
   return (
     <>
